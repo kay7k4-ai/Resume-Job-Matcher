@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>ResumeMatch</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+  <!-- briefcase mascot -->
+  <div class="mascot-wrap">
+    <div class="mascot-bubble" id="mascotBubble">hire me! 💼</div>
+    <svg class="mascot-svg" width="52" height="64" viewBox="0 0 52 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M19 10 Q19 4 26 4 Q33 4 33 10" stroke="#7c3aed" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+      <rect x="6" y="10" width="40" height="34" rx="7" fill="#7c3aed"/>
+      <rect x="22" y="22" width="8" height="10" rx="2" fill="white" opacity="0.9"/>
+      <rect x="24" y="25" width="4" height="4" rx="1" fill="#7c3aed"/>
+      <line x1="6" y1="27" x2="46" y2="27" stroke="white" stroke-width="1.5" opacity="0.3"/>
+      <g class="eye-l"><circle cx="17" cy="20" r="3.5" fill="white"/><circle cx="17" cy="20" r="1.5" fill="#7c3aed"/></g>
+      <g class="eye-r"><circle cx="35" cy="20" r="3.5" fill="white"/><circle cx="35" cy="20" r="1.5" fill="#7c3aed"/></g>
+      <path d="M20 30 Q26 34 32 30" stroke="white" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+      <rect class="leg-l" x="16" y="44" width="7" height="16" rx="3.5" fill="#6d28d9"/>
+      <rect class="leg-r" x="29" y="44" width="7" height="16" rx="3.5" fill="#6d28d9"/>
+      <ellipse cx="19.5" cy="60" rx="6" ry="3.5" fill="#4c1d95"/>
+      <ellipse cx="32.5" cy="60" rx="6" ry="3.5" fill="#4c1d95"/>
+    </svg>
+    <div class="mascot-label">JobBot v1</div>
+  </div>
+
+  <div class="app">
+
+    <nav class="navbar">
+      <div class="nav-logo">Resume<span>Match</span></div>
+      <div class="nav-right">
+        <div class="nav-tag">TF-IDF + Cosine Similarity</div>
+        <a class="nav-link" href="https://github.com/yourusername/resume-job-matcher" target="_blank">GitHub ↗</a>
+        <button class="nav-toggle" onclick="toggleTheme()" id="themeBtn">☾ Dark</button>
+      </div>
+    </nav>
+
+    <div class="main-grid">
+
+      <div class="left-col">
+        <div class="card">
+          <div class="card-title"><div class="dot dot-purple"></div> Upload Resume</div>
+          <div class="upload-box" id="uploadBox" onclick="document.getElementById('resumeFile').click()">
+            <div class="upload-icon">📄</div>
+            <div class="upload-text"><span>Click to upload</span> or drag & drop</div>
+            <div class="upload-text">PDF files only · Max 5MB</div>
+            <div class="file-name" id="fileName"></div>
+          </div>
+          <input type="file" id="resumeFile" accept=".pdf" style="display:none">
+
+          <div class="card-title"><div class="dot dot-blue"></div> Job Description</div>
+          <textarea id="jobDesc" placeholder="Paste the job description here...&#10;&#10;e.g. We are looking for a Python developer with experience in ML..."></textarea>
+          <div class="char-row"><span id="charCount">0</span> / 2000</div>
+
+          <div class="btn-row">
+            <button class="btn-analyze" onclick="analyze()">✦ Analyze Match</button>
+            <button class="btn-clear" onclick="clearAll()">Clear</button>
+          </div>
+          <div class="error-box" id="errorBox"></div>
+        </div>
+
+        <div class="card grow">
+          <div class="card-title"><div class="dot dot-green"></div> Match Results</div>
+          <div class="result-empty" id="resultEmpty">
+            <div class="empty-icon">📊</div>
+            <div class="empty-text">Upload your resume and paste a job description to see your match score.</div>
+          </div>
+          <div class="result-section" id="resultSection">
+            <div class="score-big" id="scoreBig">0%</div>
+            <div class="score-sub">match score</div>
+            <div class="score-bar-bg"><div class="score-bar" id="scoreBar"></div></div>
+            <div class="feedback-tag" id="feedbackTag"></div>
+            <div class="card-title" style="margin-top:16px"><div class="dot dot-orange"></div> Missing Keywords</div>
+            <div class="keywords-row" id="keywordsRow"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="right-col">
+        <div class="card">
+          <div class="card-title"><div class="dot dot-purple"></div> How it works</div>
+          <div class="stat-row"><div class="stat-l">Algorithm</div><div class="stat-v purple">Cosine Similarity</div></div>
+          <div class="stat-row"><div class="stat-l">Vectorizer</div><div class="stat-v purple">TF-IDF</div></div>
+          <div class="stat-row"><div class="stat-l">PDF Parser</div><div class="stat-v">PyPDF2</div></div>
+          <div class="stat-row"><div class="stat-l">Score range</div><div class="stat-v">0 – 100%</div></div>
+          <div class="stat-row"><div class="stat-l">Strong match</div><div class="stat-v green">> 60%</div></div>
+          <div class="stat-row"><div class="stat-l">Avg match</div><div class="stat-v orange">35 – 60%</div></div>
+          <div class="stat-row"><div class="stat-l">Low match</div><div class="stat-v red">< 35%</div></div>
+        </div>
+
+        <div class="card grow">
+          <div class="card-title"><div class="dot dot-blue"></div> Resume Tips</div>
+          <div class="tip-item">
+            <div class="tip-icon purple">✦</div>
+            <div>
+              <div class="tip-title">Mirror the job description</div>
+              <div class="tip-body">Use the same keywords and phrases from the job posting in your resume.</div>
+            </div>
+          </div>
+          <div class="tip-item">
+            <div class="tip-icon blue">📊</div>
+            <div>
+              <div class="tip-title">Quantify achievements</div>
+              <div class="tip-body">Add numbers — "improved performance by 40%" beats vague claims.</div>
+            </div>
+          </div>
+          <div class="tip-item">
+            <div class="tip-icon green">🎯</div>
+            <div>
+              <div class="tip-title">Target each application</div>
+              <div class="tip-body">Tailor your resume for every job. Generic resumes score lower.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-title"><div class="dot dot-orange"></div> Score Guide</div>
+          <div class="guide-row">
+            <div class="guide-dot" style="background:#10b981"></div>
+            <div class="guide-text">Above 60% — Strong match, apply now!</div>
+          </div>
+          <div class="guide-row">
+            <div class="guide-dot" style="background:#f59e0b"></div>
+            <div class="guide-text">35–60% — Average, add missing keywords</div>
+          </div>
+          <div class="guide-row">
+            <div class="guide-dot" style="background:#ef4444"></div>
+            <div class="guide-text">Below 35% — Low match, tailor more</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <footer class="footer-bar">
+      <div class="footer-l">built with python · flask · scikit-learn · PyPDF2</div>
+      <a class="footer-r" href="https://github.com/yourusername/resume-job-matcher" target="_blank">view on github →</a>
+    </footer>
+
+  </div>
+
+  <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
